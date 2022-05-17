@@ -31,6 +31,11 @@ To build a fat jar (deployable without Scala etc.) run:
 ./build_jar.sh
 ```
 
+## License
+
+MIT, see [LICENSE](./LICENSE). Based on the MIT licensed code by munificent in
+https://github.com/munificent/craftinginterpreters
+
 ## TODO
 
 - [x] chapter 4
