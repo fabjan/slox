@@ -1,6 +1,6 @@
 case class Token(typ: TokenType, lexeme: String, line: Int) {
   override def toString(): String = {
-    return s"$typ <$lexeme>";
+    return s"$typ <$lexeme>"
   }
 }
 
