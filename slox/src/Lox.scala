@@ -8,9 +8,10 @@ object Lox {
 
   def main(args: Array[String]): Unit = {
     args match {
-      case Array(file) => runFile(file)
-      case Array()     => runPrompt()
-      case _           => usage()
+      case Array("test", what) => runTest(what)
+      case Array(file)         => runFile(file)
+      case Array()             => runPrompt()
+      case _                   => usage()
     }
   }
 
@@ -51,6 +52,11 @@ object Lox {
     val tokens = scanner.scanTokens()
 
     tokens.foreach(println)
+  }
+
+  def runTest(what: String): Unit = what match {
+    case "ast-printer" => AstPrinter.test()
+    case "rpn-printer" => RpnPrinter.test()
   }
 
   def error(line: Int, message: String): Unit = {
