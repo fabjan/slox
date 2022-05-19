@@ -4,25 +4,28 @@ case class Token(typ: TokenType, lexeme: String, line: Int) {
   }
 }
 
-sealed abstract class TokenType
-
-case class IdentifierToken(name: String) extends TokenType
-case class StringToken(value: String) extends TokenType
-case class NumberToken(value: Double) extends TokenType
-case class CommentToken(content: String) extends TokenType
-
-enum PlainToken extends TokenType:
+enum TokenType:
+  // structure
   case LeftParen, RightParen, LeftBrace, RightBrace
-  case Comma, Dot, Semicolon
-  case Minus, Plus, Slash, Star
-  case Equal, EqualEqual
-  case Bang, BangEqual
+  case Comma, Semicolon
+  // operators
+  case Equal, Dot
+  case Minus, Plus, Slash, Star, Bang
+  case EqualEqual, BangEqual
   case Greater, GreaterEqual
   case Less, LessEqual
   case And, Or
-  case Var, Fun, Class
+  // keywords
+  case Var, Fun, Class, This, Super
   case If, Else, For, While, Return
-  case This, True, False, Nil
-  case Print, Super
+  // literals
+  case True, False, Nil
+  case NumberLiteral(value: Double)
+  case StringLiteral(value: String)
+  // identifiers
+  case Print
+  case Identifier(name: String)
+  // extras
+  case Comment(content: String)
   case WhiteSpace
   case EOF

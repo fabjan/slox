@@ -8,15 +8,16 @@ class Scanner(source: String) {
   val tokens = new ListBuffer[Token]()
 
   def scanTokens(): List[Token] = {
+    import TokenType.{WhiteSpace, EOF}
 
     while (!isAtEnd()) {
       start = current
       scanToken()
-        .filter(x => x.typ != PlainToken.WhiteSpace)
+        .filter(x => x.typ != WhiteSpace)
         .foreach(tokens.addOne)
     }
 
-    tokens.addOne(Token(PlainToken.EOF, "", line))
+    tokens.addOne(Token(EOF, "", line))
 
     tokens.toList
   }
@@ -80,12 +81,12 @@ class Scanner(source: String) {
   }
 
   private def scanToken(): Option[Token] = {
-    import PlainToken._
+    import TokenType._
 
     val c = advance()
 
     val typ = Some(c).collect({
-      case '\n'                 => { line += 1; PlainToken.WhiteSpace }
+      case '\n'                 => { line += 1; WhiteSpace }
       case c if isWhitespace(c) => space()
       case c if isDigit(c)      => number()
       case c if isAlpha(c)      => identifier()
@@ -95,8 +96,8 @@ class Scanner(source: String) {
       case '{' => LeftBrace
       case '}' => RightBrace
       case ',' => Comma
-      case '.' => Dot
       case ';' => Semicolon
+      case '.' => Dot
       case '-' => Minus
       case '+' => Plus
       case '*' => Star
@@ -123,14 +124,14 @@ class Scanner(source: String) {
       advance()
     }
     val content = source.substring(start, current)
-    CommentToken(content.trim())
+    TokenType.Comment(content.trim())
   }
 
   private def space(): TokenType = {
     while (isWhitespace(peek())) {
       advance()
     }
-    PlainToken.WhiteSpace
+    TokenType.WhiteSpace
   }
 
   private def number(): TokenType = {
@@ -143,7 +144,7 @@ class Scanner(source: String) {
         advance()
       }
     }
-    NumberToken(source.substring(start, current).toDouble)
+    TokenType.NumberLiteral(source.substring(start, current).toDouble)
   }
 
   private def string(): TokenType = {
@@ -168,32 +169,34 @@ class Scanner(source: String) {
     // This means we return the unterminated string as well,
     // but I didn't want to complicate the Option.collect in scanToken,
     // and hopefully this works alright.
-    StringToken(value)
+    TokenType.StringLiteral(value)
   }
 
   private def identifier(): TokenType = {
+    import TokenType._
+
     while (isAlnum(peek())) {
       advance()
     }
 
     source.substring(start, current) match {
-      case "and"    => PlainToken.And
-      case "class"  => PlainToken.Class
-      case "else"   => PlainToken.Else
-      case "false"  => PlainToken.False
-      case "for"    => PlainToken.For
-      case "fun"    => PlainToken.Fun
-      case "if"     => PlainToken.If
-      case "nil"    => PlainToken.Nil
-      case "or"     => PlainToken.Or
-      case "print"  => PlainToken.Print
-      case "return" => PlainToken.Return
-      case "super"  => PlainToken.Super
-      case "this"   => PlainToken.This
-      case "true"   => PlainToken.True
-      case "var"    => PlainToken.Var
-      case "while"  => PlainToken.While
-      case name     => IdentifierToken(name)
+      case "and"    => And
+      case "class"  => Class
+      case "else"   => Else
+      case "false"  => False
+      case "for"    => For
+      case "fun"    => Fun
+      case "if"     => If
+      case "nil"    => Nil
+      case "or"     => Or
+      case "print"  => Print
+      case "return" => Return
+      case "super"  => Super
+      case "this"   => This
+      case "true"   => True
+      case "var"    => Var
+      case "while"  => While
+      case name     => Identifier(name)
     }
   }
 }
