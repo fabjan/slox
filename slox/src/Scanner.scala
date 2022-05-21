@@ -200,3 +200,27 @@ class Scanner(source: String) {
     }
   }
 }
+
+object Scanner {
+  def test(): Unit = {
+    import TokenType._
+
+    Expect.equal(
+      "can scan bang",
+      new Scanner("!").scanToken(),
+      Some(Token(Bang, "!", 1))
+    )
+    Expect.equal(
+      "can scan numbers",
+      new Scanner("1 2 3 4 5").scanTokens(),
+      List(
+        Token(NumberLiteral(1), "1", 1),
+        Token(NumberLiteral(2), "2", 1),
+        Token(NumberLiteral(3), "3", 1),
+        Token(NumberLiteral(4), "4", 1),
+        Token(NumberLiteral(5), "5", 1),
+        Token(EOF, "", 1)
+      )
+    )
+  }
+}

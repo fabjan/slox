@@ -57,6 +57,7 @@ object Lox {
   def runTest(what: String): Unit = what match {
     case "ast-printer" => AstPrinter.test()
     case "rpn-printer" => RpnPrinter.test()
+    case "scanner"     => Scanner.test()
   }
 
   def error(line: Int, message: String): Unit = {
