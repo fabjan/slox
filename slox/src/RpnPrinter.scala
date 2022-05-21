@@ -20,17 +20,17 @@ object RpnPrinter {
         Expr.Binary(
           Expr.Literal(1),
           Token(TokenType.Plus, "+", 1),
-          Expr.Literal(2)
-        )
+          Expr.Literal(2),
+        ),
       ),
       Token(TokenType.Star, "*", 1),
       Expr.Grouping(
         Expr.Binary(
           Expr.Literal(4),
           Token(TokenType.Minus, "-", 1),
-          Expr.Literal(3)
-        )
-      )
+          Expr.Literal(3),
+        ),
+      ),
     )
 
     println("expect: 1 2 + 4 3 - *")

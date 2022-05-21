@@ -117,19 +117,19 @@ object Parser {
     Expect.equal(
       "can parse number literal",
       new Parser(scan("4711")).parse(),
-      Success(Expr.Literal(4711.0))
+      Success(Expr.Literal(4711.0)),
     )
     Expect.equal(
       "can parse string literal",
       new Parser(scan("\"goober\"")).parse(),
-      Success(Expr.Literal("goober"))
+      Success(Expr.Literal("goober")),
     )
     Expect.equal(
       "can parse binary operation",
       new Parser(scan("1 + 2")).parse(),
       Success(
-        Expr.Binary(Expr.Literal(1.0), Token(Plus, "+", 1), Expr.Literal(2.0))
-      )
+        Expr.Binary(Expr.Literal(1.0), Token(Plus, "+", 1), Expr.Literal(2.0)),
+      ),
     )
   }
 }

@@ -13,7 +13,7 @@ object Expect {
     apply(
       message,
       expected == actual,
-      s"\nexpected: $expected\nbut got : $actual"
+      s"\nexpected: $expected\nbut got : $actual",
     )
   }
 }

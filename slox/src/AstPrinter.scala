@@ -19,10 +19,10 @@ object AstPrinter {
       Expr.Binary(
         Expr.Unary(
           Token(TokenType.Minus, "-", 1),
-          Expr.Literal(123)
+          Expr.Literal(123),
         ),
         Token(TokenType.Star, "*", 1),
-        Expr.Grouping(Expr.Literal(45.67))
+        Expr.Grouping(Expr.Literal(45.67)),
       )
 
     println(new AstPrinter().print(expr));

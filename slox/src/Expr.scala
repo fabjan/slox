@@ -1,4 +1,6 @@
+// format: off
 /**
+ * scama
  * expression     → equality ;
  * equality       → comparison ( ( "!=" | "==" ) comparison )* ;
  * comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
@@ -9,6 +11,7 @@
  * primary        → NUMBER | STRING | "true" | "false" | "nil"
  *                | "(" expression ")" ;
  */
+// format: on
 
 enum Expr:
   case Literal(value: Any)

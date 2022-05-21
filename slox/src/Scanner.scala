@@ -208,7 +208,7 @@ object Scanner {
     Expect.equal(
       "can scan bang",
       new Scanner("!").scanToken(),
-      Some(Token(Bang, "!", 1))
+      Some(Token(Bang, "!", 1)),
     )
     Expect.equal(
       "can scan numbers",
@@ -219,8 +219,8 @@ object Scanner {
         Token(NumberLiteral(3), "3", 1),
         Token(NumberLiteral(4), "4", 1),
         Token(NumberLiteral(5), "5", 1),
-        Token(EOF, "", 1)
-      )
+        Token(EOF, "", 1),
+      ),
     )
   }
 }
