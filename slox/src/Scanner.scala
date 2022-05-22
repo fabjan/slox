@@ -1,11 +1,11 @@
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.ArrayBuffer
 
 class Scanner(source: String) {
 
   var start = 0
   var current = 0
   var line = 1
-  val tokens = new ListBuffer[Token]()
+  val tokens = new ArrayBuffer[Token]()
 
   def scanTokens(): List[Token] = {
     import TokenType.{WhiteSpace, EOF}

@@ -18,13 +18,13 @@ enum TokenType:
   // keywords
   case Var, Fun, Class, This, Super
   case If, Else, For, While, Return
-  // literals
+  // atoms
   case True, False, Nil
   case NumberLiteral(value: Double)
   case StringLiteral(value: String)
-  // identifiers
-  case Print
   case Identifier(name: String)
+  // builtins
+  case Print
   // extras
   case Comment(content: String)
   case WhiteSpace
