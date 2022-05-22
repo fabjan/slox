@@ -39,9 +39,9 @@ https://github.com/munificent/craftinginterpreters
 ## TODO
 
 - [x] chapter 4
-- [ ] chapter 5
-- [ ] chapter 6
-- [ ] chapter 7
+- [x] chapter 5
+- [x] chapter 6
+- [x] chapter 7
 - [ ] chapter 8
 - [ ] chapter 9
 - [ ] chapter 10
