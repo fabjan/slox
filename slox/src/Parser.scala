@@ -6,7 +6,7 @@ case class ParseError(message: String) extends RuntimeException
 
 class Parser(tokens: List[Token]) {
 
-  var current = 0;
+  var current = 0
 
   def parse(): Try[Expr] = {
     Try({ expression() })

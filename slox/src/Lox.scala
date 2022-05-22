@@ -79,14 +79,14 @@ object Lox {
 
   def error(token: Token, message: String): Unit = {
     if (token.typ == TokenType.EOF) {
-      report(token.line, " at end", message);
+      report(token.line, " at end", message)
     } else {
-      report(token.line, " at '" + token.lexeme + "'", message);
+      report(token.line, " at '" + token.lexeme + "'", message)
     }
   }
 
   private def report(line: Int, where: String, message: String): Unit = {
-    System.err.println("[line " + line + "] Error" + where + ": " + message)
+    println("[line " + line + "] Error" + where + ": " + message)
     hadError = true
   }
 }

@@ -25,6 +25,6 @@ object AstPrinter {
         Expr.Grouping(Expr.Literal(45.67)),
       )
 
-    println(new AstPrinter().print(expr));
+    println(new AstPrinter().print(expr))
   }
 }
