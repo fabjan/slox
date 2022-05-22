@@ -4,7 +4,9 @@ import scala.io.StdIn.readLine
 
 object Lox {
 
+  val interpreter = new Interpreter()
   var hadError = false
+  var hadRuntimeError = false
 
   def main(args: Array[String]): Unit = {
     args match {
@@ -26,9 +28,8 @@ object Lox {
 
     run(source)
 
-    if (hadError) {
-      System.exit(65)
-    }
+    if (hadError) { System.exit(65) }
+    if (hadRuntimeError) { System.exit(70) }
   }
 
   def runPrompt(): Unit = {
@@ -60,10 +61,10 @@ object Lox {
 
     val expression = parser.parse()
 
-    // Stop if there was a syntax error.
+    // Don't interpret if there was a syntax error.
     if (hadError) { return }
 
-    println(new AstPrinter().print(expression.get))
+    interpreter.interpret(expression.get)
   }
 
   def runTest(what: String): Unit = what match {
@@ -71,6 +72,7 @@ object Lox {
     case "rpn-printer" => RpnPrinter.test()
     case "scanner"     => Scanner.test()
     case "parser"      => Parser.test()
+    case "interpreter" => Interpreter.test()
   }
 
   def error(line: Int, message: String): Unit = {
@@ -83,6 +85,13 @@ object Lox {
     } else {
       report(token.line, " at '" + token.lexeme + "'", message)
     }
+  }
+
+  def runtimeError(error: RuntimeError): Unit = {
+    println(
+      s"${error.message}\n[line ${error.token.line}]",
+    )
+    hadRuntimeError = true
   }
 
   private def report(line: Int, where: String, message: String): Unit = {
