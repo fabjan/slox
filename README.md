@@ -19,10 +19,10 @@ To start the lox repl run:
 mill slox.run
 ```
 
-To execute a lox script run:
+To execute a lox script run e.g:
 
 ```shell
-mill slox.run scriptname.lox
+mill slox.run test.lox
 ```
 
 To build a fat jar (deployable without Scala etc.) run:
