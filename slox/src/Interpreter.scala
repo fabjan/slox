@@ -2,6 +2,7 @@ import scala.util.Try
 
 case class RuntimeError(token: Token, message: String) extends RuntimeException
 
+// TODO: use case classes instead
 type LoxObject = Any
 
 class Interpreter {
