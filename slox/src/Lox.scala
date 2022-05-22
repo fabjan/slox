@@ -59,12 +59,12 @@ object Lox {
 
     val parser = new Parser(tokens)
 
-    val expression = parser.parse()
+    val program = parser.parse()
 
     // Don't interpret if there was a syntax error.
     if (hadError) { return }
 
-    interpreter.interpret(expression.get)
+    interpreter.interpret(program)
   }
 
   def runTest(what: String): Unit = what match {

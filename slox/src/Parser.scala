@@ -1,4 +1,5 @@
-import scala.util.{Try, Success, Failure}
+import scala.collection.mutable.ArrayBuffer
+import scala.util.Success
 
 import TokenType._
 
@@ -8,11 +9,41 @@ class Parser(tokens: List[Token]) {
 
   var current = 0
 
-  def parse(): Try[Expr] = {
-    Try({ expression() })
+  def parse(): List[Stmt] = {
+    val statements = new ArrayBuffer[Stmt]()
+    while (!isAtEnd()) {
+      statements.addOne(statement())
+    }
+
+    statements.toList
   }
 
-  private def expression(): Expr = equality()
+  private def statement(): Stmt = {
+    peek() match {
+      case Token(Print, _, _) => printStatement()
+      case _                  => expressionStatement()
+    }
+  }
+
+  private def printStatement(): Stmt = {
+    consume(Print, "interpreter error")
+    val expr = expression()
+    stmtEnd()
+    Stmt.Print(expr)
+  }
+
+  private def expressionStatement(): Stmt = {
+    val expr = expression()
+    stmtEnd()
+    Stmt.Expression(expr)
+  }
+
+  private def stmtEnd(): Unit = {
+    consume(Semicolon, "Expect ';' at end of statement.")
+  }
+
+  // public for test code
+  def expression(): Expr = equality()
 
   private def equality(): Expr =
     binary(comparison, BangEqual, EqualEqual)
@@ -72,7 +103,7 @@ class Parser(tokens: List[Token]) {
   }
 
   private def isAtEnd() =
-    peek().typ == TokenType.EOF
+    peek().typ == EOF
 
   private def check(typ: TokenType) =
     !isAtEnd() && peek().typ == typ
@@ -110,25 +141,39 @@ class Parser(tokens: List[Token]) {
 
 object Parser {
   def test(): Unit = {
-    import TokenType._
 
     def scan(source: String): List[Token] = new Scanner(source).scanTokens()
 
     Expect.equal(
       "can parse number literal",
-      new Parser(scan("4711")).parse(),
-      Success(Expr.Literal(4711.0)),
+      new Parser(scan("4711")).expression(),
+      Expr.Literal(4711.0),
     )
     Expect.equal(
       "can parse string literal",
-      new Parser(scan("\"goober\"")).parse(),
-      Success(Expr.Literal("goober")),
+      new Parser(scan("\"goober\"")).expression(),
+      Expr.Literal("goober"),
     )
     Expect.equal(
       "can parse binary operation",
-      new Parser(scan("1 + 2")).parse(),
-      Success(
-        Expr.Binary(Expr.Literal(1.0), Token(Plus, "+", 1), Expr.Literal(2.0)),
+      new Parser(scan("1 + 2")).expression(),
+      Expr.Binary(Expr.Literal(1.0), Token(Plus, "+", 1), Expr.Literal(2.0)),
+    )
+
+    Expect.equal(
+      "can parse expression statements",
+      new Parser(scan("1 + 2;")).parse(),
+      List(
+        Stmt.Expression(
+          Expr.Binary(Expr.Literal(1.0), Token(Plus, "+", 1), Expr.Literal(2.0)),
+        ),
+      ),
+    )
+    Expect.equal(
+      "can parse print statements",
+      new Parser(scan("print \"goober\";")).parse(),
+      List(
+        Stmt.Print(Expr.Literal("goober")),
       ),
     )
   }

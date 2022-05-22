@@ -7,12 +7,11 @@ type LoxObject = Any
 
 class Interpreter {
 
-  def interpret(expr: Expr): Unit = {
+  def interpret(statements: List[Stmt]): Unit = {
     try {
-      val value = evaluate(expr)
-      println(stringify(value))
+      statements.foreach(execute)
     } catch {
-      case error: RuntimeError => Lox.runtimeError(error)
+      case error: RuntimeError => Lox.runtimeError(error);
     }
   }
 
@@ -27,6 +26,11 @@ class Interpreter {
       }
     }
     case default => s"$default"
+  }
+
+  private def execute(stmt: Stmt): Unit = stmt match {
+    case Stmt.Expression(expr) => { evaluate(expr); () }
+    case Stmt.Print(expr)      => { println(stringify(evaluate(expr))); () }
   }
 
   private def evaluate(expr: Expr): LoxObject = expr match {
@@ -131,7 +135,7 @@ object Interpreter {
     val interp = new Interpreter()
 
     def eval(source: String): LoxObject =
-      interp.evaluate(new Parser(new Scanner(source).scanTokens()).parse().get)
+      interp.evaluate(Parser(new Scanner(source).scanTokens()).expression())
 
     Expect.equal(
       "can evaluate numbers",
