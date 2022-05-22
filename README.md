@@ -8,8 +8,9 @@ back and make it more functional later.
 
 ## Dependencies
 
-This project is built with Mill:
-https://com-lihaoyi.github.io/mill/mill/Intro_to_Mill.html#_installation
+This project is built with [Mill].
+
+[Mill]: https://com-lihaoyi.github.io/mill/mill/Intro_to_Mill.html#_installation
 
 ## Running
 
