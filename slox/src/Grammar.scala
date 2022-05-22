@@ -1,6 +1,11 @@
 // format: off
 /**
- * scama
+ * program        → statement* EOF ;
+ * statement      → exprStmt
+ *                | printStmt ;
+ * exprStmt       → expression ";" ;
+ * printStmt      → "print" expression ";" ;
+ * 
  * expression     → equality ;
  * equality       → comparison ( ( "!=" | "==" ) comparison )* ;
  * comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
@@ -18,3 +23,7 @@ enum Expr:
   case Grouping(expr: Expr)
   case Unary(op: Token, expr: Expr)
   case Binary(left: Expr, op: Token, right: Expr)
+
+enum Stmt:
+  case Expression(expr: Expr)
+  case Print(expr: Expr)
