@@ -1,5 +1,5 @@
 import scala.collection.mutable.ArrayBuffer
-import scala.util.Success
+import scala.util.{Failure, Success, Try}
 
 import TokenType._
 
@@ -12,10 +12,41 @@ class Parser(tokens: List[Token]) {
   def parse(): List[Stmt] = {
     val statements = new ArrayBuffer[Stmt]()
     while (!isAtEnd()) {
-      statements.addOne(statement())
+      declaration().foreach(s => {
+        statements.addOne(s)
+      })
     }
 
     statements.toList
+  }
+
+  private def declaration(): Option[Stmt] = {
+    Try {
+      peek() match {
+        case Token(Var, _, _) => varDeclaration()
+        case _                => statement()
+      }
+    } match {
+      case Success(stmt) => Some(stmt)
+      case Failure(e: ParseError) => {
+        synchronize()
+        None
+      }
+      case Failure(e) => {
+        throw e
+      }
+    }
+  }
+
+  private def varDeclaration(): Stmt = {
+    consume(Var, "interpreter error")
+    val name = peek() match {
+      case Token(Identifier(_), _, _) => next()
+      case t => throw (error(t, "expect variable name"))
+    }
+    val initializer = munch(Equal).map(_ => expression())
+    consume(Semicolon, "expect ';' after variable declaration")
+    Stmt.Var(name, initializer)
   }
 
   private def statement(): Stmt = {
@@ -74,6 +105,7 @@ class Parser(tokens: List[Token]) {
       case Nil              => Expr.Literal(null)
       case NumberLiteral(n) => Expr.Literal(n)
       case StringLiteral(s) => Expr.Literal(s)
+      case Identifier(i)    => Expr.Variable(previous()) // TODO maybe not the whole token
       case LeftParen => {
         val expr = expression()
         consume(RightParen, "Expect ')' after expression.")

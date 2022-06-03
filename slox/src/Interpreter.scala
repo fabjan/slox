@@ -2,10 +2,22 @@ import scala.util.Try
 
 case class RuntimeError(token: Token, message: String) extends RuntimeException
 
-// TODO: use case classes instead
-type LoxObject = Any
+enum LoxObject:
+  case LoxNumber(value: Double)
+  case LoxBoolean(value: Boolean)
+  case LoxString(value: String)
+  case LoxNil
+
+import LoxObject._
+
+import scala.language.implicitConversions
+implicit def loxBool(x: Boolean): LoxObject = LoxBoolean(x)
+implicit def loxNumber(x: Double): LoxObject = LoxNumber(x)
+implicit def loxString(x: String): LoxObject = LoxString(x)
 
 class Interpreter {
+
+  val environment = new Environment()
 
   def interpret(statements: List[Stmt]): Unit = {
     try {
@@ -16,28 +28,46 @@ class Interpreter {
   }
 
   private def stringify(obj: LoxObject): String = obj match {
-    case null => "nil"
-    case d: Double => {
-      val text = s"$obj"
+    case LoxNil        => "nil"
+    case LoxBoolean(b) => s"$b"
+    case LoxString(s)  => s
+    case LoxNumber(x) => {
+      val text = s"$x"
       if (text.endsWith(".0")) {
         text.substring(0, text.length() - 2)
       } else {
         text
       }
     }
-    case default => s"$default"
   }
 
   private def execute(stmt: Stmt): Unit = stmt match {
-    case Stmt.Expression(expr) => { evaluate(expr); () }
-    case Stmt.Print(expr)      => { println(stringify(evaluate(expr))); () }
+    case Stmt.Expression(expr) => {
+      evaluate(expr); ()
+    }
+    case Stmt.Print(expr) => {
+      println(stringify(evaluate(expr))); ()
+    }
+    case Stmt.Var(i, init) => {
+      init
+        .map(evaluate)
+        .foreach((v: LoxObject) => {
+          environment.define(i.lexeme, v)
+        })
+    }
   }
 
   private def evaluate(expr: Expr): LoxObject = expr match {
-    case Expr.Literal(v)              => v
-    case Expr.Grouping(expr)          => evaluate(expr)
-    case Expr.Unary(op, expr)         => unary(op, expr)
-    case Expr.Binary(left, op, right) => binary(left, op, right)
+    case Expr.Literal(v: Boolean) => v
+    case Expr.Literal(v: Double)  => v
+    case Expr.Literal(v: String)  => v
+    case Expr.Literal(null)       => LoxNil
+    case Expr.Variable(v)         => environment.get(v)
+    case Expr.Grouping(expr)      => evaluate(expr)
+    case Expr.Binary(a, op, b)    => binary(a, op, b)
+    case Expr.Unary(op, expr)     => unary(op, expr)
+
+    case Expr.Literal(_) => throw RuntimeError(null, "this cannot happen")
   }
 
   private def unary(op: Token, expr: Expr): LoxObject = {
@@ -62,8 +92,6 @@ class Interpreter {
 
     val left = evaluate(lexpr)
     val right = evaluate(rexpr)
-
-    def isString(xs: LoxObject*): Boolean = xs.forall(_.isInstanceOf[String])
 
     (op.typ) match {
 
@@ -95,7 +123,17 @@ class Interpreter {
   }
 
   private def isDouble(args: LoxObject*): Boolean = {
-    args.forall(_.isInstanceOf[Double])
+    args.forall({
+      case LoxBoolean(_) => true
+      case _             => false
+    })
+  }
+
+  private def isString(args: LoxObject*): Boolean = {
+    args.forall({
+      case LoxString(_) => true
+      case _            => false
+    })
   }
 
   private def checkNumberOperands(op: Token, args: LoxObject*): Unit = {
@@ -107,26 +145,25 @@ class Interpreter {
   private def double(x: LoxObject): Double = x.asInstanceOf[Double]
 
   private def loxTruthy(v: LoxObject): Boolean = v match {
-    case null  => false
-    case false => false
-    case _     => true
+    case LoxBoolean(false) => false
+    case LoxNil            => false
+    case _                 => true
   }
 
   private def loxEquals(a: LoxObject, b: LoxObject): Boolean = (a, b) match {
-    case (null, null) => true
-    case (null, _)    => false
-    case (a, b)       => a.equals(b)
+    case (LoxNil, LoxNil) => true
+    case (LoxNil, _)      => false
+    case (a, b)           => a.equals(b)
   }
 
-  private def loxPlus(op: Token, a: LoxObject, b: LoxObject): LoxObject = {
-    if (a.isInstanceOf[String] && b.isInstanceOf[String]) {
-      s"$a$b"
-    } else if (isDouble(a, b)) {
-      double(a) + double(b)
-    } else {
-      throw RuntimeError(op, s"operands must be two numbers or two strings")
+  private def loxPlus(op: Token, a: LoxObject, b: LoxObject): LoxObject =
+    (a, b) match {
+      case (LoxString(x), LoxString(y)) => s"$a$b"
+      case (LoxNumber(x), LoxNumber(y)) => x + y
+      case _ => {
+        throw RuntimeError(op, s"operands must be two numbers or two strings")
+      }
     }
-  }
 }
 
 object Interpreter {
