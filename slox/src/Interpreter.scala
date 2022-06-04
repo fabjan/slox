@@ -93,13 +93,11 @@ class Interpreter {
 
     val arg = evaluate(expr)
 
-    (op.typ) match {
-      case Bang => !loxTruthy(arg)
-      case Minus => {
-        checkNumberOperands(op, arg)
-        0 - double(arg)
-      }
-      case _ => throw RuntimeError(op, "not a unary operator")
+    (op.typ, arg) match {
+      case (Bang, _)             => !loxTruthy(arg)
+      case (Minus, LoxNumber(x)) => 0 - x
+      case (Minus, _) => throw RuntimeError(op, "operand must be a number")
+      case _          => throw RuntimeError(op, "not a unary operator")
     }
   }
 
@@ -134,32 +132,12 @@ class Interpreter {
       left: LoxObject,
       right: LoxObject,
       primitive: (a: Double, b: Double) => T,
-  ): T = {
-    checkNumberOperands(op, left, right)
-    primitive(double(left), double(right))
-  }
-
-  private def isDouble(args: LoxObject*): Boolean = {
-    args.forall({
-      case LoxBoolean(_) => true
-      case _             => false
-    })
-  }
-
-  private def isString(args: LoxObject*): Boolean = {
-    args.forall({
-      case LoxString(_) => true
-      case _            => false
-    })
-  }
-
-  private def checkNumberOperands(op: Token, args: LoxObject*): Unit = {
-    if (!isDouble(args*)) {
+  ): T = (left, right) match {
+    case (LoxNumber(a), LoxNumber(b)) => primitive(a, b)
+    case _ => {
       throw RuntimeError(op, s"operands must be numbers")
     }
   }
-
-  private def double(x: LoxObject): Double = x.asInstanceOf[Double]
 
   private def loxTruthy(v: LoxObject): Boolean = v match {
     case LoxBoolean(false) => false
