@@ -158,7 +158,7 @@ class Interpreter {
 
   private def loxPlus(op: Token, a: LoxObject, b: LoxObject): LoxObject =
     (a, b) match {
-      case (LoxString(x), LoxString(y)) => s"$a$b"
+      case (LoxString(x), LoxString(y)) => s"$x$y"
       case (LoxNumber(x), LoxNumber(y)) => x + y
       case _ => {
         throw RuntimeError(op, s"operands must be two numbers or two strings")
