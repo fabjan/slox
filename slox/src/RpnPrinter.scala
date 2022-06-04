@@ -1,10 +1,12 @@
 class RpnPrinter {
 
   def print(expr: Expr): String = expr match {
-    case Expr.Binary(left, op, right) => revpol(Some(op.lexeme), left, right)
-    case Expr.Grouping(expr)          => revpol(None, expr)
-    case Expr.Literal(v)              => if (v == null) then "nil" else s"$v"
-    case Expr.Unary(op, expr)         => revpol(Some(op.lexeme), expr)
+    case Expr.Binary(a, op, b) => revpol(Some(op.lexeme), a, b)
+    case Expr.Grouping(expr)   => revpol(None, expr)
+    case Expr.Literal(v)       => if (v == null) then "nil" else s"$v"
+    case Expr.Unary(op, expr)  => revpol(Some(op.lexeme), expr)
+    case Expr.Variable(v)      => v.lexeme
+    case Expr.Assign(v, expr)  => revpol(Some("="), expr, Expr.Variable(v))
   }
 
   def revpol(op: Option[String], exprs: Expr*): String = {

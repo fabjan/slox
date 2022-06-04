@@ -1,10 +1,12 @@
 class AstPrinter {
 
   def print(expr: Expr): String = expr match {
-    case Expr.Binary(left, op, right) => parenthesize(op.lexeme, left, right)
-    case Expr.Grouping(expr)          => parenthesize("group", expr)
-    case Expr.Literal(v)              => if (v == null) then "nil" else s"$v"
-    case Expr.Unary(op, expr)         => parenthesize(op.lexeme, expr)
+    case Expr.Binary(a, op, b) => parenthesize(op.lexeme, a, b)
+    case Expr.Grouping(expr)   => parenthesize("group", expr)
+    case Expr.Literal(v)       => if (v == null) then "nil" else s"$v"
+    case Expr.Unary(op, expr)  => parenthesize(op.lexeme, expr)
+    case Expr.Variable(v)      => v.lexeme
+    case Expr.Assign(v, expr)  => parenthesize("=", Expr.Variable(v), expr)
   }
 
   def parenthesize(name: String, exprs: Expr*): String = {
