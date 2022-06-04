@@ -17,7 +17,7 @@ implicit def loxString(x: String): LoxObject = LoxString(x)
 
 class Interpreter {
 
-  val environment = new Environment()
+  var environment = new Environment()
 
   def interpret(statements: List[Stmt]): Unit = {
     try {
@@ -54,6 +54,22 @@ class Interpreter {
         .foreach((v: LoxObject) => {
           environment.define(i.lexeme, v)
         })
+    }
+    case Stmt.Block(statements) => {
+      executeBlock(statements, environment.newScope())
+    }
+  }
+
+  private def executeBlock(
+      statements: List[Stmt],
+      scope: Environment,
+  ): Unit = {
+    val before = this.environment
+    try {
+      this.environment = scope
+      statements.foreach(execute)
+    } finally {
+      this.environment = before
     }
   }
 

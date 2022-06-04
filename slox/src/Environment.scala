@@ -4,6 +4,10 @@ class Environment(enclosing: Option[Environment] = None) {
 
   val values = new HashMap[String, LoxObject]()
 
+  def newScope(): Environment = {
+    new Environment(Some(this))
+  }
+
   def define(name: String, value: LoxObject): Unit = {
     values.put(name, value)
   }

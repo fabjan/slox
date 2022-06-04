@@ -1,0 +1,15 @@
+{
+  var a = "first";
+  print a; // "first".
+}
+
+{
+  var a = "second";
+  print a; // "second".
+  {
+    var a = "third";
+    print a; // "third"
+  }
+}
+
+print a; // Error! No more "a".

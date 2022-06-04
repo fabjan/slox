@@ -8,8 +8,10 @@
  *
  * statement      → exprStmt
  *                | printStmt ;
+ *                | block ;
  * exprStmt       → expression ";" ;
  * printStmt      → "print" expression ";" ;
+ * block          → "{" declaration* "}" ;
  * 
  * expression     → assignment ;
  * assignment     → IDENTIFIER "=" assignment
@@ -39,3 +41,4 @@ enum Stmt:
   case Expression(expr: Expr)
   case Print(expr: Expr)
   case Var(name: Token, initializer: Option[Expr])
+  case Block(statements: List[Stmt])
