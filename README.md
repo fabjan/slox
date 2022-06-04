@@ -29,7 +29,7 @@ mill slox.run test.lox
 To build a fat jar (deployable without Scala etc.) run:
 
 ```shell
-./build_jar.sh
+ci/build_jar.sh
 ```
 
 ## License

@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -15,6 +15,6 @@ jobs:
       with:
         mill-version: 0.10.4
     - name: Compile
-      run: mill slox.compile
-    - name: Run test scripts
-      run: echo test*.lox | xargs -n1 mill slox.run
+      run: ci/build_jar.sh
+    - name: Run regression tests
+      run: ci/verify_test_script_output.sh
