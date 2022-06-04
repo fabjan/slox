@@ -1,0 +1,13 @@
+if (1 < 2) {
+    print "foobar";
+} else {
+    print "goober";
+}
+
+if (false) print "nope"; else print "yep";
+
+if (true)
+  print "sure";
+
+if (false)
+  print "never";

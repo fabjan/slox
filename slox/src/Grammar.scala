@@ -7,9 +7,12 @@
  * varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
  *
  * statement      → exprStmt
+ *                | ifStmt
  *                | printStmt ;
  *                | block ;
  * exprStmt       → expression ";" ;
+ * ifStmt         → "if" "(" expression ")" statement
+ *                  ( "else" statement )? ;
  * printStmt      → "print" expression ";" ;
  * block          → "{" declaration* "}" ;
  * 
@@ -39,6 +42,7 @@ enum Expr:
 
 enum Stmt:
   case Expression(expr: Expr)
+  case If(condition: Expr, thenBranch: Stmt, elseBranch: Option[Stmt])
   case Print(expr: Expr)
   case Var(name: Token, initializer: Option[Expr])
   case Block(statements: List[Stmt])

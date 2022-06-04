@@ -50,10 +50,24 @@ class Parser(tokens: List[Token]) {
 
   private def statement(): Stmt = {
     peek() match {
+      case Token(If, _, _)        => ifStatement()
       case Token(Print, _, _)     => printStatement()
       case Token(LeftBrace, _, _) => Stmt.Block(block())
       case _                      => expressionStatement()
     }
+  }
+
+  private def ifStatement(): Stmt = {
+    consume(If, "interpreter error")
+
+    consume(LeftParen, "Expect '(' after 'if'.")
+    val condition = expression()
+    consume(RightParen, "Expect ')' after if condition.")
+
+    val thenBranch = statement()
+    val elseBranch = if (munch(Else).nonEmpty) Some(statement()) else None
+
+    Stmt.If(condition, thenBranch, elseBranch)
   }
 
   private def printStatement(): Stmt = {
@@ -64,7 +78,7 @@ class Parser(tokens: List[Token]) {
   }
 
   private def block(): List[Stmt] = {
-    val statements = new ArrayBuffer[Stmt]()    
+    val statements = new ArrayBuffer[Stmt]()
     consume(LeftBrace, "interpreter error")
     while (!check(RightBrace) && !isAtEnd()) {
       declaration().foreach(statements.addOne)

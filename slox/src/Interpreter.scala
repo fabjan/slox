@@ -46,6 +46,12 @@ class Interpreter {
       evaluate(expr)
       ()
     }
+    case Stmt.If(condition, thenBranch, elseBranch) => {
+      if (loxTruthy(evaluate(condition))) {
+        execute(thenBranch)
+      } else {
+        elseBranch.foreach(execute)
+      }
     }
     case Stmt.Print(expr) => {
       loxPrint(expr)
