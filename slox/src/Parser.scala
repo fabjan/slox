@@ -74,7 +74,22 @@ class Parser(tokens: List[Token]) {
   }
 
   // public for test code
-  def expression(): Expr = equality()
+  def expression(): Expr = assignment()
+
+  private def assignment(): Expr = {
+    (equality(), munch(Equal)) match {
+      case (expr, None) => expr
+      case (Expr.Variable(v), Some(_)) => {
+        // right associativity
+        val value = assignment()
+        Expr.Assign(v, value)
+      }
+      case (left, Some(equals)) => {
+        error(equals, "Invalid assignment target.")
+        left
+      }
+    }
+  }
 
   private def equality(): Expr =
     binary(comparison, BangEqual, EqualEqual)
@@ -105,7 +120,7 @@ class Parser(tokens: List[Token]) {
       case Nil              => Expr.Literal(null)
       case NumberLiteral(n) => Expr.Literal(n)
       case StringLiteral(s) => Expr.Literal(s)
-      case Identifier(i)    => Expr.Variable(previous()) // TODO maybe not the whole token
+      case Identifier(i)    => Expr.Variable(previous())
       case LeftParen => {
         val expr = expression()
         consume(RightParen, "Expect ')' after expression.")
@@ -117,6 +132,7 @@ class Parser(tokens: List[Token]) {
 
   private def binary(higher: () => Expr, ops: TokenType*): Expr = {
     var expr = higher()
+    // left associativity
     while (munch(ops*).nonEmpty) {
       val operator = previous()
       val right = higher()

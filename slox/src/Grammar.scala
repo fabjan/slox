@@ -11,7 +11,9 @@
  * exprStmt       → expression ";" ;
  * printStmt      → "print" expression ";" ;
  * 
- * expression     → equality ;
+ * expression     → assignment ;
+ * assignment     → IDENTIFIER "=" assignment
+ *                | equality ;
  * equality       → comparison ( ( "!=" | "==" ) comparison )* ;
  * comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
  * term           → factor ( ( "-" | "+" ) factor )* ;
@@ -31,6 +33,7 @@ enum Expr:
   case Unary(op: Token, expr: Expr)
   case Binary(left: Expr, op: Token, right: Expr)
   case Variable(name: Token)
+  case Assign(name: Token, value: Expr)
 
 enum Stmt:
   case Expression(expr: Expr)

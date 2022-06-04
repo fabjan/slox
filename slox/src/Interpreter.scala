@@ -66,6 +66,7 @@ class Interpreter {
     case Expr.Grouping(expr)      => evaluate(expr)
     case Expr.Binary(a, op, b)    => binary(a, op, b)
     case Expr.Unary(op, expr)     => unary(op, expr)
+    case Expr.Assign(name, expr)  => environment.assign(name, evaluate(expr))
 
     case Expr.Literal(_) => throw RuntimeError(null, "this cannot happen")
   }
