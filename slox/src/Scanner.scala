@@ -110,7 +110,7 @@ class Scanner(source: String) {
     })
 
     if (typ.isEmpty) {
-      Lox.error(line, s"Unexpected character: $c")
+      Lox.staticError(line, s"Unexpected character: $c")
     }
 
     typ.map((t) => {
@@ -160,7 +160,7 @@ class Scanner(source: String) {
     val value = source.substring(start + 1, current)
 
     if (isAtEnd()) {
-      Lox.error(line, "Unterminated string: ")
+      Lox.staticError(line, "Unterminated string: ")
     } else {
       // Consume the closing quote.
       advance()

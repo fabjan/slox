@@ -11,10 +11,9 @@ class Parser(tokens: List[Token]) {
 
   def parse(): List[Stmt] = {
     val statements = new ArrayBuffer[Stmt]()
+
     while (!isAtEnd()) {
-      declaration().foreach(s => {
-        statements.addOne(s)
-      })
+      declaration().foreach(statements.addOne)
     }
 
     statements.toList
@@ -51,8 +50,9 @@ class Parser(tokens: List[Token]) {
 
   private def statement(): Stmt = {
     peek() match {
-      case Token(Print, _, _) => printStatement()
-      case _                  => expressionStatement()
+      case Token(Print, _, _)     => printStatement()
+      case Token(LeftBrace, _, _) => Stmt.Block(block())
+      case _                      => expressionStatement()
     }
   }
 
@@ -61,6 +61,17 @@ class Parser(tokens: List[Token]) {
     val expr = expression()
     stmtEnd()
     Stmt.Print(expr)
+  }
+
+  private def block(): List[Stmt] = {
+    val statements = new ArrayBuffer[Stmt]()    
+    consume(LeftBrace, "interpreter error")
+    while (!check(RightBrace) && !isAtEnd()) {
+      declaration().foreach(statements.addOne)
+    }
+    consume(RightBrace, "Expect '}' after block.")
+
+    statements.toList
   }
 
   private def expressionStatement(): Stmt = {
@@ -170,7 +181,7 @@ class Parser(tokens: List[Token]) {
   }
 
   private def error(token: Token, message: String): ParseError = {
-    Lox.error(token, message)
+    Lox.staticError(token, message)
     ParseError(message)
   }
 

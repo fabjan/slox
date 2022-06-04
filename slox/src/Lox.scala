@@ -75,27 +75,31 @@ object Lox {
     case "interpreter" => Interpreter.test()
   }
 
-  def error(line: Int, message: String): Unit = {
-    report(line, "", message)
+  def staticError(line: Int, message: String): Unit = {
+    hadError = true
+    printError(line, None, message)
   }
 
-  def error(token: Token, message: String): Unit = {
-    if (token.typ == TokenType.EOF) {
-      report(token.line, " at end", message)
-    } else {
-      report(token.line, " at '" + token.lexeme + "'", message)
-    }
+  def staticError(token: Token, message: String): Unit = {
+    hadError = true
+    printError(token.line, Some(token), message)
   }
 
   def runtimeError(error: RuntimeError): Unit = {
-    println(
-      s"${error.message}\n[line ${error.token.line}]",
-    )
     hadRuntimeError = true
+    printError(error.token.line, Some(error.token), error.message)
   }
 
-  private def report(line: Int, where: String, message: String): Unit = {
+  private def printError(
+      line: Int,
+      token: Option[Token],
+      message: String,
+  ): Unit = {
+    val where = token match {
+      case Some(Token(TokenType.EOF, _, _)) => " at end"
+      case Some(token)                      => s" at '${token.lexeme}'"
+      case None                             => ""
+    }
     println("[line " + line + "] Error" + where + ": " + message)
-    hadError = true
   }
 }
