@@ -43,10 +43,13 @@ class Interpreter {
 
   private def execute(stmt: Stmt): Unit = stmt match {
     case Stmt.Expression(expr) => {
-      evaluate(expr); ()
+      evaluate(expr)
+      ()
+    }
     }
     case Stmt.Print(expr) => {
-      println(stringify(evaluate(expr))); ()
+      loxPrint(expr)
+      ()
     }
     case Stmt.Var(i, init) => {
       init
@@ -159,6 +162,11 @@ class Interpreter {
         throw RuntimeError(op, s"operands must be two numbers or two strings")
       }
     }
+
+  // exposed for REPL
+  def loxPrint(expr: Expr): Unit = {
+    println(stringify(evaluate(expr)))
+  }
 }
 
 object Interpreter {

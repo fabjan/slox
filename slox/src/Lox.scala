@@ -40,15 +40,17 @@ object Lox {
       return
     }
 
-    run(line)
+    run(line, true)
     hadError = false
 
     runPrompt()
   }
 
-  def run(source: String): Unit = {
+  def run(source: String, inRepl: Boolean = false): Unit = {
 
-    val scanner = new Scanner(source)
+    val scanner = new Scanner(
+      if (inRepl && !source.endsWith(";")) then source + ";" else source,
+    )
 
     val tokens = scanner
       .scanTokens()
@@ -64,7 +66,10 @@ object Lox {
     // Don't interpret if there was a syntax error.
     if (hadError) { return }
 
-    interpreter.interpret(program)
+    (inRepl, program) match {
+      case (true, List(Stmt.Expression(expr))) => interpreter.loxPrint(expr)
+      case _                                   => interpreter.interpret(program)
+    }
   }
 
   def runTest(what: String): Unit = what match {
