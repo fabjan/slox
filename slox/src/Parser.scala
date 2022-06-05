@@ -224,7 +224,7 @@ class Parser(tokens: List[Token]) {
     while (munch(ops*).nonEmpty) {
       val operator = previous()
       val right = higher()
-      expr = new Expr.Binary(expr, operator, right);
+      expr = new Expr.Binary(expr, operator, right)
     }
     expr
   }
