@@ -58,6 +58,12 @@ class Interpreter {
       loxPrint(expr)
       ()
     }
+    case Stmt.While(condition, body) => {
+      while (loxTruthy(evaluate(condition))) {
+        execute(body)
+      }
+      ()
+    }
     case Stmt.Var(i, init) => {
       init
         .map(evaluate)

@@ -9,11 +9,13 @@
  * statement      → exprStmt
  *                | ifStmt
  *                | printStmt
+ *                | whileStmt
  *                | block ;
  * exprStmt       → expression ";" ;
  * ifStmt         → "if" "(" expression ")" statement
  *                  ( "else" statement )? ;
  * printStmt      → "print" expression ";" ;
+ * whileStmt      → "while" "(" expression ")" statement ;
  * block          → "{" declaration* "}" ;
  * 
  * expression     → assignment ;
@@ -48,3 +50,4 @@ enum Stmt:
   case Print(expr: Expr)
   case Var(name: Token, initializer: Option[Expr])
   case Block(statements: List[Stmt])
+  case While(condition: Expr, body: Stmt)

@@ -49,11 +49,12 @@ class Parser(tokens: List[Token]) {
   }
 
   private def statement(): Stmt = {
-    peek() match {
-      case Token(If, _, _)        => ifStatement()
-      case Token(Print, _, _)     => printStatement()
-      case Token(LeftBrace, _, _) => Stmt.Block(block())
-      case _                      => expressionStatement()
+    peek().typ match {
+      case If        => ifStatement()
+      case Print     => printStatement()
+      case While     => whileStatement()
+      case LeftBrace => Stmt.Block(block())
+      case _         => expressionStatement()
     }
   }
 
@@ -75,6 +76,18 @@ class Parser(tokens: List[Token]) {
     val expr = expression()
     stmtEnd()
     Stmt.Print(expr)
+  }
+
+  private def whileStatement(): Stmt = {
+    consume(While, "interpreter error")
+
+    consume(LeftParen, "Expect '(' after 'while'.")
+    val condition = expression()
+    consume(RightParen, "Expect ')' after loop condition.")
+
+    val body = statement()
+
+    Stmt.While(condition, body)
   }
 
   private def block(): List[Stmt] = {
@@ -118,9 +131,9 @@ class Parser(tokens: List[Token]) {
 
   // Diverging from the book here by using the Binary AST node type since I
   // don't use the visitor pattern.
-  private def or(): Expr = 
+  private def or(): Expr =
     binary(and, Or)
-  private def and(): Expr = 
+  private def and(): Expr =
     binary(equality, And)
 
   private def equality(): Expr =
