@@ -7,6 +7,7 @@ object Lox {
   val interpreter = new Interpreter()
   var hadError = false
   var hadRuntimeError = false
+  var silenceErrors = false
 
   def main(args: Array[String]): Unit = {
     args match {
@@ -48,9 +49,7 @@ object Lox {
 
   def run(source: String, inRepl: Boolean = false): Unit = {
 
-    val scanner = new Scanner(
-      if (inRepl && !source.endsWith(";")) then source + ";" else source,
-    )
+    val scanner = new Scanner(source)
 
     val tokens = scanner
       .scanTokens()
@@ -59,19 +58,30 @@ object Lox {
         case _                                 => true
       })
 
-    val parser = new Parser(tokens)
+    // The REPL supports directly evaluating an expression and printing it.
+    if (inRepl && !hadError) {
+      try {
+        silenceErrors = true
+        val parser = new Parser(tokens)
+        val expr = parser.expression()
+        silenceErrors = false
+        if (!hadError && parser.isAtEnd()) {
+          return interpreter.interpret(List(Stmt.Print(expr)))
+        }
+      } catch {
+        case _ => ()
+      } finally {
+        silenceErrors = false
+        hadError = false
+      }
+    }
 
-    val program = parser.parse()
+    val program = new Parser(tokens).parse()
 
     // Don't interpret if there was a syntax error.
     if (hadError) { return }
 
-    (inRepl, program) match {
-      case (true, List(Stmt.Expression(expr))) =>
-        interpreter.interpret(List(Stmt.Print(expr)))
-      case _ =>
-        interpreter.interpret(program)
-    }
+    interpreter.interpret(program)
   }
 
   def runTest(what: String): Unit = what match {
@@ -102,6 +112,9 @@ object Lox {
       token: Option[Token],
       message: String,
   ): Unit = {
+
+    if (silenceErrors) { return }
+
     val where = token match {
       case Some(Token(TokenType.EOF, _, _)) => " at end"
       case Some(token)                      => s" at '${token.lexeme}'"

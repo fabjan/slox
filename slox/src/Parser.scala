@@ -98,7 +98,7 @@ class Parser(tokens: List[Token]) {
     consume(Semicolon, "Expect ';' at end of statement.")
   }
 
-  // public for test code
+  // public for test code and REPL
   def expression(): Expr = assignment()
 
   private def assignment(): Expr = {
@@ -182,7 +182,8 @@ class Parser(tokens: List[Token]) {
     }
   }
 
-  private def isAtEnd() =
+  // public for REPL use
+  def isAtEnd() =
     peek().typ == EOF
 
   private def check(typ: TokenType) =
