@@ -8,7 +8,7 @@
  *
  * statement      → exprStmt
  *                | ifStmt
- *                | printStmt ;
+ *                | printStmt
  *                | block ;
  * exprStmt       → expression ";" ;
  * ifStmt         → "if" "(" expression ")" statement
