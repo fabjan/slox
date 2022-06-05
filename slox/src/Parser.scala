@@ -50,12 +50,55 @@ class Parser(tokens: List[Token]) {
 
   private def statement(): Stmt = {
     peek().typ match {
+      case For       => forStatement()
       case If        => ifStatement()
       case Print     => printStatement()
       case While     => whileStatement()
       case LeftBrace => Stmt.Block(block())
       case _         => expressionStatement()
     }
+  }
+
+  private def forStatement(): Stmt = {
+    consume(For, "interpreter error")
+
+    consume(LeftParen, "Expect '(' after 'for'.")
+
+    val initializer = if (munch(Semicolon).nonEmpty) {
+      None
+    } else if (check(Var)) {
+      Some(varDeclaration())
+    } else {
+      Some(expressionStatement())
+    }
+
+    val condition = if (check(Semicolon)) {
+      None
+    } else {
+      Some(expression())
+    }
+    consume(Semicolon, "Expect ';' after loop condition.")
+
+    val increment = if (check(RightParen)) {
+      None
+    } else {
+      Some(expression())
+    }
+    consume(RightParen, "Expect ')' after for clauses.")
+
+    var loop = statement()
+
+    increment.foreach((incr) => {
+      loop = Stmt.Block(List(loop, Stmt.Expression(incr)))
+    })
+
+    loop = Stmt.While(condition.getOrElse(Expr.Literal(true)), loop)
+
+    initializer.foreach((init) => {
+      loop = Stmt.Block(List(init, loop))
+    })
+
+    loop
   }
 
   private def ifStatement(): Stmt = {
