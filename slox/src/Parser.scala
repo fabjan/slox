@@ -102,7 +102,7 @@ class Parser(tokens: List[Token]) {
   def expression(): Expr = assignment()
 
   private def assignment(): Expr = {
-    (equality(), munch(Equal)) match {
+    (or(), munch(Equal)) match {
       case (expr, None) => expr
       case (Expr.Variable(v), Some(_)) => {
         // right associativity
@@ -115,6 +115,13 @@ class Parser(tokens: List[Token]) {
       }
     }
   }
+
+  // Diverging from the book here by using the Binary AST node type since I
+  // don't use the visitor pattern.
+  private def or(): Expr = 
+    binary(and, Or)
+  private def and(): Expr = 
+    binary(equality, And)
 
   private def equality(): Expr =
     binary(comparison, BangEqual, EqualEqual)

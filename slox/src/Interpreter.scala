@@ -115,9 +115,16 @@ class Interpreter {
     import TokenType._
 
     val left = evaluate(lexpr)
+
+    // the logical operators are lazy, so need
+    // to be handled here before we eval rexpr
+    if (op.typ == Or || op.typ == And) {
+      return lazyLogic(op, left, rexpr)
+    }
+
     val right = evaluate(rexpr)
 
-    (op.typ) match {
+    op.typ match {
 
       case Plus  => loxPlus(op, left, right)
       case Minus => binaryNumberOp(op, left, right, (_ - _))
@@ -135,6 +142,13 @@ class Interpreter {
       case _ => throw RuntimeError(op, "not a binary operator")
     }
   }
+
+  private def lazyLogic(op: Token, left: LoxObject, right: Expr): LoxObject =
+    (op.typ, loxTruthy(left)) match {
+      case (TokenType.Or, true)   => return left
+      case (TokenType.And, false) => return left
+      case _                      => return evaluate(right)
+    }
 
   private def binaryNumberOp[T](
       op: Token,
