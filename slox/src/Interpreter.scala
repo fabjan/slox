@@ -65,9 +65,8 @@ class Interpreter {
       ()
     }
     case Stmt.Var(i, init) => {
-      init
-        .map(evaluate)
-        .foreach((v) => environment.define(i.lexeme, v))
+      val value = init.map(evaluate).getOrElse(LoxNil)
+      environment.define(i.lexeme, value)
       ()
     }
     case Stmt.Block(statements) => {
