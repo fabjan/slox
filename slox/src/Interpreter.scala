@@ -52,6 +52,7 @@ class Interpreter {
       } else {
         elseBranch.foreach(execute)
       }
+      ()
     }
     case Stmt.Print(expr) => {
       loxPrint(expr)
@@ -60,12 +61,12 @@ class Interpreter {
     case Stmt.Var(i, init) => {
       init
         .map(evaluate)
-        .foreach((v: LoxObject) => {
-          environment.define(i.lexeme, v)
-        })
+        .foreach((v) => environment.define(i.lexeme, v))
+      ()
     }
     case Stmt.Block(statements) => {
       executeBlock(statements, environment.newScope())
+      ()
     }
   }
 
