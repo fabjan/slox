@@ -169,8 +169,7 @@ class Interpreter {
       }
     }
 
-  // exposed for REPL
-  def loxPrint(expr: Expr): Unit = {
+  private def loxPrint(expr: Expr): Unit = {
     println(stringify(evaluate(expr)))
   }
 }

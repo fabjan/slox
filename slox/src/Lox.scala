@@ -67,8 +67,10 @@ object Lox {
     if (hadError) { return }
 
     (inRepl, program) match {
-      case (true, List(Stmt.Expression(expr))) => interpreter.loxPrint(expr)
-      case _                                   => interpreter.interpret(program)
+      case (true, List(Stmt.Expression(expr))) =>
+        interpreter.interpret(List(Stmt.Print(expr)))
+      case _ =>
+        interpreter.interpret(program)
     }
   }
 
