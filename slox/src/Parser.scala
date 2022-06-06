@@ -198,7 +198,44 @@ class Parser(tokens: List[Token]) {
       return Expr.Unary(t.get, unary())
     }
 
-    primary()
+    call()
+  }
+
+  private def call(): Expr = {
+    var expr = primary()
+
+    var continue = true
+    while (continue) {
+      if (munch(LeftParen).nonEmpty) {
+        expr = finishCall(expr)
+      } else {
+        continue = false
+      }
+    }
+
+    expr
+  }
+
+  private def finishCall(callee: Expr): Expr = {
+    val arguments = new ArrayBuffer[Expr]()
+
+    if (!check(RightParen)) {
+      var continue = true
+      while (continue) {
+        arguments.addOne(expression())
+        if (munch(Comma).isEmpty) {
+          continue = false
+        }
+      }
+    }
+
+    if (arguments.length >= 255) {
+      error(peek(), "Can't have more than 255 arguments.")
+    }
+
+    val paren = consume(RightParen, "Expect ')' after arguments.")
+
+    Expr.Call(callee, paren, arguments.toList)
   }
 
   private def primary(): Expr = {

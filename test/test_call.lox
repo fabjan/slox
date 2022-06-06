@@ -1,0 +1,7 @@
+var t = 1612141262;
+
+var t0 = clock();
+print t < t0;
+
+var t1 = clock();
+print t0 < t1;

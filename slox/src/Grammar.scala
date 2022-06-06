@@ -31,7 +31,9 @@
  * term           → factor ( ( "-" | "+" ) factor )* ;
  * factor         → unary ( ( "/" | "*" ) unary )* ;
  * unary          → ( "!" | "-" ) unary
- *                | primary ;
+ *                | call ;
+ * call           → primary ( "(" arguments? ")" )* ;
+ * arguments      → expression ( "," expression )* ;
  * primary        → "true" | "false" | "nil"
  *                | NUMBER | STRING
  *                | "(" expression ")"
@@ -46,6 +48,7 @@ enum Expr:
   case Binary(left: Expr, op: Token, right: Expr)
   case Variable(name: Token)
   case Assign(name: Token, value: Expr)
+  case Call(callee: Expr, paren: Token, arguments: List[Expr])
 
 enum Stmt:
   case Expression(expr: Expr)

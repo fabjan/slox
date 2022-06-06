@@ -1,14 +1,22 @@
+import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
 case class RuntimeError(token: Token, message: String) extends RuntimeException
 
-enum LoxObject:
+sealed trait LoxObject
+
+enum LoxThing extends LoxObject:
   case LoxNumber(value: Double)
   case LoxBoolean(value: Boolean)
   case LoxString(value: String)
   case LoxNil
 
-import LoxObject._
+trait LoxCallable extends LoxObject {
+  val arity: Int
+  def call(interpreter: Interpreter, arguments: List[LoxObject]): LoxObject
+}
+
+import LoxThing._
 
 import scala.language.implicitConversions
 implicit def loxBool(x: Boolean): LoxObject = LoxBoolean(x)
@@ -17,7 +25,10 @@ implicit def loxString(x: String): LoxObject = LoxString(x)
 
 class Interpreter {
 
-  var environment = new Environment()
+  val globals = new Environment()
+  var environment = globals
+
+  defineGlobals(globals)
 
   def interpret(statements: List[Stmt]): Unit = {
     try {
@@ -39,6 +50,7 @@ class Interpreter {
         text
       }
     }
+    case c: LoxCallable => s"$c"
   }
 
   private def execute(stmt: Stmt): Unit = stmt match {
@@ -98,6 +110,7 @@ class Interpreter {
     case Expr.Binary(a, op, b)    => binary(a, op, b)
     case Expr.Unary(op, expr)     => unary(op, expr)
     case Expr.Assign(name, expr)  => environment.assign(name, evaluate(expr))
+    case Expr.Call(fn, par, args) => call(fn, par, args)
 
     case Expr.Literal(_) => throw RuntimeError(null, "this cannot happen")
   }
@@ -168,6 +181,33 @@ class Interpreter {
     }
   }
 
+  private def call(
+      callee: Expr,
+      paren: Token,
+      arguments: List[Expr],
+  ): LoxObject = {
+
+    val fn = evaluate(callee) match {
+      case c: LoxCallable => c
+      case x =>
+        throw RuntimeError(paren, "Can only call functions and classes.")
+    }
+
+    if (arguments.length != fn.arity) {
+      throw new RuntimeError(
+        paren,
+        s"Expected ${fn.arity} arguments but got ${arguments.length}.",
+      )
+    }
+
+    val args = new ArrayBuffer[LoxObject]()
+    arguments.foreach((arg) => {
+      args.addOne(evaluate(arg))
+    })
+
+    fn.call(this, args.toList)
+  }
+
   private def loxTruthy(v: LoxObject): Boolean = v match {
     case LoxBoolean(false) => false
     case LoxNil            => false
@@ -192,6 +232,24 @@ class Interpreter {
   private def loxPrint(expr: Expr): Unit = {
     println(stringify(evaluate(expr)))
   }
+}
+
+def defineGlobals(env: Environment): Unit = {
+  env.define(
+    "clock",
+    new LoxCallable {
+      val arity = 0
+
+      def call(
+          interpreter: Interpreter,
+          arguments: List[LoxObject],
+      ): LoxObject = {
+        System.currentTimeMillis() / 1000.0
+      }
+
+      override def toString(): String = "<native fn>"
+    },
+  )
 }
 
 object Interpreter {
