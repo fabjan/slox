@@ -3,19 +3,6 @@ import scala.util.Try
 
 case class RuntimeError(token: Token, message: String) extends RuntimeException
 
-sealed trait LoxObject
-
-enum LoxThing extends LoxObject:
-  case LoxNumber(value: Double)
-  case LoxBoolean(value: Boolean)
-  case LoxString(value: String)
-  case LoxNil
-
-trait LoxCallable extends LoxObject {
-  val arity: Int
-  def call(interpreter: Interpreter, arguments: List[LoxObject]): LoxObject
-}
-
 import LoxThing._
 
 import scala.language.implicitConversions
@@ -85,9 +72,15 @@ class Interpreter {
       executeBlock(statements, environment.newScope())
       ()
     }
+    case stmt: Stmt.Function => {
+      val function = new LoxFunction(stmt)
+      environment.define(stmt.name.lexeme, function)
+      ()
+    }
   }
 
-  private def executeBlock(
+  // public for LoxFunction call impl
+  def executeBlock(
       statements: List[Stmt],
       scope: Environment,
   ): Unit = {

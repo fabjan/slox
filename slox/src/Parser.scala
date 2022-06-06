@@ -55,6 +55,7 @@ class Parser(tokens: List[Token]) {
       case Print     => printStatement()
       case While     => whileStatement()
       case LeftBrace => Stmt.Block(block())
+      case Fun       => function("function")
       case _         => expressionStatement()
     }
   }
@@ -144,6 +145,38 @@ class Parser(tokens: List[Token]) {
     statements.toList
   }
 
+  private def function(kind: String): Stmt.Function = {
+    consume(Fun, "interpreter error")
+
+    val name = peek() match {
+      case Token(Identifier(_), _, _) => next()
+      case other => throw error(other, s"Expect $kind name.")
+    }
+
+    consume(LeftParen, s"Expect '(' after $kind name.")
+    val parameters = new ArrayBuffer[Token]()
+    if (!check(RightParen)) {
+      var continue = true
+      while (continue) {
+        if (255 < parameters.length) {
+          error(peek(), "Can't have more than 255 parameters.")
+        }
+
+        peek() match {
+          case Token(Identifier(_), _, _) => parameters.addOne(next())
+          case other => throw error(other, "Expect parameter name.")
+        }
+
+        if (munch(Comma).isEmpty) { continue = false }
+      }
+    }
+    consume(RightParen, "Expect ')' after parameters.")
+
+    val body = block()
+
+    Stmt.Function(name, parameters.toList, body)
+  }
+
   private def expressionStatement(): Stmt = {
     val expr = expression()
     stmtEnd()
@@ -222,15 +255,14 @@ class Parser(tokens: List[Token]) {
     if (!check(RightParen)) {
       var continue = true
       while (continue) {
-        arguments.addOne(expression())
-        if (munch(Comma).isEmpty) {
-          continue = false
+        if (255 < arguments.length) {
+          error(peek(), "Can't have more than 255 arguments.")
         }
-      }
-    }
 
-    if (arguments.length >= 255) {
-      error(peek(), "Can't have more than 255 arguments.")
+        arguments.addOne(expression())
+
+        if (munch(Comma).isEmpty) { continue = false }
+      }
     }
 
     val paren = consume(RightParen, "Expect ')' after arguments.")

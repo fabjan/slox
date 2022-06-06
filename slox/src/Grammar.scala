@@ -2,8 +2,12 @@
 /**
  * program        → declaration* EOF ;
  *
- * declaration    → varDecl
+ * declaration    → funDecl
+ *                | varDecl
  *                | statement ;
+ * funDecl        → "fun" function ;
+ * function       → IDENTIFIER "(" parameters? ")" block ;
+ * parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
  * varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
  *
  * statement      → exprStmt
@@ -57,3 +61,4 @@ enum Stmt:
   case Var(name: Token, initializer: Option[Expr])
   case Block(statements: List[Stmt])
   case While(condition: Expr, body: Stmt)
+  case Function(name: Token, params: List[Token], body: List[Stmt])
