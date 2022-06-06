@@ -7,6 +7,7 @@ class RpnPrinter {
     case Expr.Unary(op, expr)  => revpol(Some(op.lexeme), expr)
     case Expr.Variable(v)      => v.lexeme
     case Expr.Assign(v, expr)  => revpol(Some("="), expr, Expr.Variable(v))
+    case Expr.Call(fn, _, a)   => revpol(Some("call"), (a.appended(fn))*)
   }
 
   def revpol(op: Option[String], exprs: Expr*): String = {

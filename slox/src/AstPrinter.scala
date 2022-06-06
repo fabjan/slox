@@ -7,6 +7,7 @@ class AstPrinter {
     case Expr.Unary(op, expr)  => parenthesize(op.lexeme, expr)
     case Expr.Variable(v)      => v.lexeme
     case Expr.Assign(v, expr)  => parenthesize("=", Expr.Variable(v), expr)
+    case Expr.Call(fn, p, a)   => parenthesize(print(fn), a*)
   }
 
   def parenthesize(name: String, exprs: Expr*): String = {
