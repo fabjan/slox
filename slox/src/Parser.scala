@@ -56,6 +56,7 @@ class Parser(tokens: List[Token]) {
       case While     => whileStatement()
       case LeftBrace => Stmt.Block(block())
       case Fun       => function("function")
+      case Return    => returnStatement()
       case _         => expressionStatement()
     }
   }
@@ -175,6 +176,20 @@ class Parser(tokens: List[Token]) {
     val body = block()
 
     Stmt.Function(name, parameters.toList, body)
+  }
+
+  private def returnStatement(): Stmt = {
+    val keyword = next()
+
+    val value = if (check(Semicolon)) {
+      // AST literals are not LoxObjects
+      Expr.Literal(null)
+    } else {
+      expression()
+    }
+
+    consume(Semicolon, "Expect ';' after return value.")
+    Stmt.Return(keyword, value)
   }
 
   private def expressionStatement(): Stmt = {

@@ -26,7 +26,12 @@ class LoxFunction(declaration: Stmt.Function) extends LoxCallable {
       env.define(declaration.params(i).lexeme, arguments(i))
     })
 
-    interpreter.executeBlock(declaration.body, env)
+    try {
+      interpreter.executeBlock(declaration.body, env)
+    } catch {
+      case LoxReturn(value) => return value
+    }
+
     LoxThing.LoxNil
   }
 }

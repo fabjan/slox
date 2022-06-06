@@ -1,6 +1,7 @@
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
+case class LoxReturn(value: LoxObject) extends RuntimeException
 case class RuntimeError(token: Token, message: String) extends RuntimeException
 
 import LoxThing._
@@ -76,6 +77,9 @@ class Interpreter {
       val function = new LoxFunction(stmt)
       environment.define(stmt.name.lexeme, function)
       ()
+    }
+    case Stmt.Return(keyword, value) => {
+      throw LoxReturn(evaluate(value))
     }
   }
 

@@ -14,6 +14,7 @@
  *                | forStmt
  *                | ifStmt
  *                | printStmt
+ *                | returnStmt
  *                | whileStmt
  *                | block ;
  * exprStmt       → expression ";" ;
@@ -22,6 +23,7 @@
  * ifStmt         → "if" "(" expression ")" statement
  *                  ( "else" statement )? ;
  * printStmt      → "print" expression ";" ;
+ * returnStmt     → "return" expression? ";" ;
  * whileStmt      → "while" "(" expression ")" statement ;
  * block          → "{" declaration* "}" ;
  * 
@@ -62,3 +64,4 @@ enum Stmt:
   case Block(statements: List[Stmt])
   case While(condition: Expr, body: Stmt)
   case Function(name: Token, params: List[Token], body: List[Stmt])
+  case Return(keyword: Token, value: Expr)
