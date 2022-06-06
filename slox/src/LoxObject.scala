@@ -11,7 +11,7 @@ trait LoxCallable extends LoxObject {
   def call(interpreter: Interpreter, arguments: List[LoxObject]): LoxObject
 }
 
-class LoxFunction(declaration: Stmt.Function) extends LoxCallable {
+class LoxFunction(declaration: Stmt.Function, closure: Environment) extends LoxCallable {
 
   override def toString(): String = {
     s"<fn ${declaration.name.lexeme}>"
@@ -20,8 +20,8 @@ class LoxFunction(declaration: Stmt.Function) extends LoxCallable {
   val arity = declaration.params.length
 
   def call(interpreter: Interpreter, arguments: List[LoxObject]): LoxObject = {
-    // functions can only be defined in the global scope, so this should be fine
-    val env = interpreter.globals.newScope()
+
+    val env = closure.newScope()
     arguments.zipWithIndex.foreach((arg, i) => {
       env.define(declaration.params(i).lexeme, arguments(i))
     })

@@ -74,7 +74,7 @@ class Interpreter {
       ()
     }
     case stmt: Stmt.Function => {
-      val function = new LoxFunction(stmt)
+      val function = new LoxFunction(stmt, environment)
       environment.define(stmt.name.lexeme, function)
       ()
     }
