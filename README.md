@@ -45,7 +45,7 @@ https://github.com/munificent/craftinginterpreters
 - [x] chapter 7
 - [x] chapter 8
 - [x] chapter 9
-- [ ] chapter 10
+- [x] chapter 10
 - [ ] chapter 11
 - [ ] chapter 12
 - [ ] chapter 13
